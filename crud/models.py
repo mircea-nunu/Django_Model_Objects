@@ -57,13 +57,35 @@ class Learner(User):
 class Course(models.Model):
     name = models.CharField(null=False, max_length=100, default='online course')
     description = models.CharField(max_length=500)
+
     # Many-To-Many relationship with Instructor
     instructors = models.ManyToManyField(Instructor)
+
+    #Many-To-Many relationship with Learner via Enrollment relationship
+    learners = models.ManyToManyField(Learner, through='Enrollment')
     
     # Create a toString method for object string representation
     def __str__(self):
         return "Name: " + self.name + "," + \
             "Description: " + self.description
+
+
+# Enrollment model as a lookup table with additional enrollment info
+class Enrollment(models.Model):
+    AUDIT = 'audit'
+    HONOR = 'honor'
+    COURSE_MODES = [
+        (AUDIT, 'Audit'),
+        (HONOR, 'Honor'),
+    ]
+    # Add a learner foreign key
+    learner = models.ForeignKey(Learner, on_delete=models.CASCADE)
+    # Add a course foreign key
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    # Enrollment date
+    date_enrolled = models.DateField(default=now)
+    # Enrollment mode
+    mode = models.CharField(max_length=5, choices=COURSE_MODES, default=AUDIT)
 
 # Lesson
 class Lesson(models.Model):
